@@ -358,7 +358,32 @@ class MWSClient{
             return [];    
         }   
     }
+    /**
+     * Returns unshipped orders created or updated during 60 days.
+     * @return array
+     */
+    public function getShippedOrders()
+    {
+        $query = [
+            'CreatedAfter' => date("c", time() - 30 * 24 * 60 * 60),
+            'CreatedBefore' => date("c", time() - 200 ),
+            'OrderStatus.Status.1' => 'Shipped',
+            'FulfillmentChannel.Channel.1' => 'MFN'
+        ];
 
+        $response = $this->request(
+            'ListOrders',
+            $query
+        );
+
+        if (isset($response['ListOrdersResult']['Orders']['Order'])) {
+            $response = $response['ListOrdersResult']['Orders']['Order'];
+            
+            return $response;
+        } else {
+            return [];
+        }
+    }
     /**
      * Returns unshipped orders created or updated during 60 days.
      * @return array
@@ -944,7 +969,11 @@ class MWSClient{
             'Timestamp' => gmdate(self::DATE_FORMAT, time()),
             'AWSAccessKeyId' => $this->config['Access_Key_ID'],
             'Action' => $endPoint['action'],
-            'MarketplaceId.Id.1' => $this->config['Marketplace_Id'],
+            'MarketplaceId.Id.1' => 'A1F83G8C2ARO7P',
+            'MarketplaceId.Id.2' => 'A1PA6795UKMFR9',
+            'MarketplaceId.Id.3' => 'A1RKKUPIHCS9HS',
+            'MarketplaceId.Id.4' => 'A13V1IB3VIYZZH',
+            'MarketplaceId.Id.5' => 'APJ6JRA9NG5V4',
             'SellerId' => $this->config['Seller_Id'],
             'SignatureMethod' => self::SIGNATURE_METHOD,
             'SignatureVersion' => self::SIGNATURE_VERSION,
